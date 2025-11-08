@@ -10,20 +10,25 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: code checkout
+      - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: SonarCloud scan
-        uses: sonarsource/sonarcloud-github-action@v2
-        with:
-          mysonar: ${{ secrets.SONAR_TOKEN }}
-          mysonar_url: ${{ secrets.SONAR_URL }}
-
-      - name: install dotnet
+      - name: Install .NET
         uses: actions/setup-dotnet@v4
         with:
           dotnet-version: "9.0.100"
 
+      - name: Install SonarCloud scanner
+        uses: sonarsource/sonarcloud-github-action@v2
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+        with:
+          args: >
+            sonar.login=${{ secrets.SONAR_TOKEN }}
+            -Dsonar.projectKey=${{ secrets.SONAR_PROJECT_KEY }}
+            -Dsonar.organization=${{ secrets.SONAR_ORG }}
+
       - name: dotnet publish
         run: dotnet publish -c Release src/Presentation/Nop.Web/Nop.Web.csproj -o demo
+
 
